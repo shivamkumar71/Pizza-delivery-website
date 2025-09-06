@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+// ...existing code...
+const API_BASE_URL = 'https://pizza-corner-kf2q.onrender.com/api'; // <-- Replace with your actual deployed API URL
+// ...existing code...
 
 const getAuthToken = () => {
   return localStorage.getItem('token');
