@@ -1,0 +1,148 @@
+.contact-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 0 40px 0;
+  color: #fff;
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+}
+
+.contact-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.contact-title {
+  font-size: 2.7rem;
+  font-weight: 800;
+  margin-bottom: 0.7rem;
+  background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-gradient {
+  background: linear-gradient(90deg, #ff6b6b, #fdcb6e);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.contact-subtitle {
+  font-size: 1.2rem;
+  color: #ffe5e5;
+  margin-bottom: 0.5rem;
+}
+
+.contact-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3rem;
+  justify-content: center;
+  align-items: flex-start;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.contact-form {
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 2.2rem 2rem;
+  box-shadow: 0 8px 32px rgba(118,75,162,0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  min-width: 320px;
+  flex: 1;
+}
+
+.contact-input, .contact-textarea {
+  padding: 0.9rem 1rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 1rem;
+  background: #fff;
+  color: #333;
+  box-shadow: 0 2px 8px rgba(118,75,162,0.08);
+  margin-bottom: 0.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.contact-input:focus, .contact-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #ff6b6b;
+}
+
+.contact-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.contact-btn {
+  padding: 1rem;
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255,107,107,0.12);
+  transition: background 0.3s, transform 0.2s;
+}
+
+.contact-btn:hover {
+  background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+}
+
+.contact-success {
+  margin-top: 1rem;
+  color: #fdcb6e;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.contact-info {
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 2.2rem 2rem;
+  box-shadow: 0 8px 32px rgba(118,75,162,0.12);
+  min-width: 280px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: flex-start;
+}
+
+.contact-address {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #fff;
+}
+
+.contact-email, .contact-phone {
+  font-size: 1rem;
+  color: #ffe5e5;
+}
+
+.contact-email a, .contact-phone a {
+  color: #fdcb6e;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .contact-content {
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+  }
+  .contact-form, .contact-info {
+    min-width: 220px;
+    width: 100%;
+    text-align: center;
+    align-items: center;
+  }
+}

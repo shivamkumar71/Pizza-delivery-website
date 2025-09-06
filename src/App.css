@@ -1,0 +1,142 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section {
+  padding: 60px 0;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(45deg, #74b9ff, #0984e3);
+}
+
+.btn-success {
+  background: linear-gradient(45deg, #00b894, #00a085);
+}
+
+.btn-warning {
+  background: linear-gradient(45deg, #fdcb6e, #e17055);
+}
+
+.card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.grid {
+  display: grid;
+  gap: 30px;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mt-30 {
+  margin-top: 30px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .section {
+    padding: 40px 0;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .container {
+    padding: 0 15px;
+  }
+}

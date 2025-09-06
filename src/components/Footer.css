@@ -1,0 +1,79 @@
+.footer {
+  background: linear-gradient(90deg, #764ba2 0%, #667eea 100%);
+  color: #fff;
+  padding: 2.5rem 0 1.2rem 0;
+  margin-top: 3rem;
+  box-shadow: 0 -4px 24px rgba(118,75,162,0.08);
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  flex: 1;
+}
+
+.footer-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, #ff6b6b, #ee5a24);
+  -webkit-background-clip: text;
+  color: transparent;
+  background-clip: text;
+}
+
+.footer-tagline {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #ffe5e5;
+  margin-bottom: 1.2rem;
+}
+
+.footer-contact {
+  flex: 1;
+  min-width: 220px;
+}
+
+.footer-contact h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: #fdcb6e;
+}
+
+.footer-contact address {
+  font-style: normal;
+  line-height: 1.7;
+  color: #fff;
+  font-size: 1rem;
+  margin-top: 0.3rem;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 1rem;
+  color: #e0e0e0;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 700px) {
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .footer-brand, .footer-contact {
+    text-align: center;
+  }
+}
