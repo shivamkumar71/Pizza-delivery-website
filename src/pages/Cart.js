@@ -97,14 +97,22 @@ const Cart = () => {
   const now = new Date();
   const estimatedDelivery = new Date(now.getTime() + 45*60000);
 
-  // Debug: log user object to check for user ID property
-  console.log('User object before placing order:', user);
+      // Debug: log user object to check for user ID property
+      console.log('User object before placing order:', user);
+
+      // Determine user id (support both `id` and `_id` shapes)
+      const userId = user?.id || user?._id || null;
+      if (!userId) {
+        toast.error('You must be logged in to place an order.');
+        setIsCheckingOut(false);
+        return;
+      }
 
   console.log('Order time:', now.toISOString());
   console.log('Estimated delivery:', estimatedDelivery.toISOString());
 
-  const orderData = {
-        user: user._id, // Required by backend
+      const orderData = {
+        user: userId, // Required by backend (supports user.id or user._id)
         items: cart.map(item => ({
           name: item.name,
           size: item.size,
