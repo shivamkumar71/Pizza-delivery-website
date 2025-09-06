@@ -94,13 +94,17 @@ const Cart = () => {
     
     try {
       // Create order object for API with real IST time
-      const now = new Date();
-      const estimatedDelivery = new Date(now.getTime() + 45*60000);
-      
-      console.log('Order time:', now.toISOString());
-      console.log('Estimated delivery:', estimatedDelivery.toISOString());
-      
-      const orderData = {
+  const now = new Date();
+  const estimatedDelivery = new Date(now.getTime() + 45*60000);
+
+  // Debug: log user object to check for user ID property
+  console.log('User object before placing order:', user);
+
+  console.log('Order time:', now.toISOString());
+  console.log('Estimated delivery:', estimatedDelivery.toISOString());
+
+  const orderData = {
+        user: user._id, // Required by backend
         items: cart.map(item => ({
           name: item.name,
           size: item.size,
