@@ -38,13 +38,15 @@ export const OrderProvider = ({ children }) => {
   };
 
   const deleteOrder = async (orderId) => {
+    console.log('deleteOrder called with:', orderId);
     try {
-      await orderAPI.delete(orderId);
+      const result = await orderAPI.delete(orderId);
+      console.log('Order delete API result:', result);
       setOrders(prev => prev.filter(order => order._id !== orderId));
       toast.success('Order deleted successfully');
     } catch (error) {
       console.error('Failed to delete order:', error);
-      toast.error('Failed to delete order');
+      toast.error(error.message || 'Failed to delete order');
     }
   };
 
