@@ -1,5 +1,5 @@
 // ...existing code...
-const API_BASE_URL = 'https://anshu-pizza-waale.onrender.com/api'; // <-- Replace with your actual deployed API URL
+const API_BASE_URL = 'https://anshu-pizza-waale.onrender.com/api'; // <-- Updated to deployed backend URL
 // ...existing code...
 
 const getAuthToken = () => {

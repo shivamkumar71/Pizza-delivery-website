@@ -1,5 +1,5 @@
 // Use your local IP address here
-const API_BASE_URL = 'http://localhost:5000/api'; // <-- Replace with your actual local IP
+const API_BASE_URL = 'https://anshu-pizza-waale.onrender.com/api'; // <-- Updated to deployed backend URL
 
 // ...existing code from api.js...
 
