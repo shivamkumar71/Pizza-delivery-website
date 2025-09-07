@@ -46,7 +46,7 @@ const connectMongo = async () => {
 // Start server after Mongo connection
 const startServer = async () => {
   await connectMongo();
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${sanitizeInput(PORT.toString())}`);
     console.log(`🌐 API available at: http://localhost:${sanitizeInput(PORT.toString())}`);
     console.log('📡 MongoDB status: Connected');
