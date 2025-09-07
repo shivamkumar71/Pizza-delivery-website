@@ -65,13 +65,19 @@ const Profile = () => {
   };
 
   const submitChangePassword = async () => {
-    if (pwdForm.newPassword !== pwdForm.confirmPassword) return toast.error('Passwords do not match');
+    console.log('submitChangePassword called', pwdForm);
+    if (pwdForm.newPassword !== pwdForm.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
     try {
-      await authAPI.changePassword(pwdForm.currentPassword, pwdForm.newPassword);
+      const result = await authAPI.changePassword(pwdForm.currentPassword, pwdForm.newPassword);
+      console.log('Password change result:', result);
       toast.success('Password changed');
       setShowChangePwd(false);
       setPwdForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
+      console.error('Password change error:', err);
       toast.error(err.message || 'Failed to change password');
     }
   };
