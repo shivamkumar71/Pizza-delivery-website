@@ -1,0 +1,4 @@
+.cookie-consent{position:fixed;left:0;right:0;bottom:20px;display:flex;justify-content:center;z-index:9999}
+.cookie-content{background:#fff;padding:1rem 1.25rem;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.08);display:flex;gap:1rem;align-items:center;max-width:900px}
+.cookie-content p{margin:0;color:#333}
+.cookie-actions .btn{padding:.6rem 1rem}

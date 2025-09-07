@@ -7,18 +7,28 @@ import { FaShoppingCart, FaUser, FaBars, FaTimes } from 'react-icons/fa';
 import './Navbar.css';
 
 const Navbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const { getCartItemCount } = useCart();
   const location = useLocation();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+  const toggleUserMenu = () => {
+    setIsUserMenuOpen(prev => !prev);
+    // close mobile menu when opening user menu
+    if (!isUserMenuOpen) setIsMobileMenuOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(prev => !prev);
+    // close user menu when opening mobile menu
+    if (!isMobileMenuOpen) setIsUserMenuOpen(false);
   };
 
   const handleLogout = () => {
     logout();
-    setIsMenuOpen(false);
+    setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
   };
 
   const navItems = [
@@ -85,12 +95,12 @@ const Navbar = () => {
                 className="user-avatar"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={toggleMenu}
+                onClick={toggleUserMenu}
               >
                 <FaUser />
               </motion.div>
               
-              {isMenuOpen && (
+              {isUserMenuOpen && (
                 <motion.div
                   className="dropdown-menu"
                   initial={{ opacity: 0, y: -10 }}
@@ -118,14 +128,14 @@ const Navbar = () => {
             </div>
           )}
 
-          <button className="mobile-menu-btn" onClick={toggleMenu}>
-            {isMenuOpen ? <FaTimes /> : <FaBars />}
+          <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+            {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMenuOpen && (
+  {isMobileMenuOpen && (
         <motion.div
           className="mobile-menu"
           initial={{ opacity: 0, height: 0 }}
@@ -137,17 +147,17 @@ const Navbar = () => {
               key={item.path}
               to={item.path}
               className={`mobile-nav-link ${location.pathname === item.path ? 'active' : ''}`}
-              onClick={() => setIsMenuOpen(false)}
+      onClick={() => setIsMobileMenuOpen(false)}
             >
               {item.label}
             </Link>
           ))}
           {!user && (
             <>
-              <Link to="/login" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/login" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
                 Login
               </Link>
-              <Link to="/register" className="mobile-nav-link" onClick={() => setIsMenuOpen(false)}>
+              <Link to="/register" className="mobile-nav-link" onClick={() => setIsMobileMenuOpen(false)}>
                 Register
               </Link>
             </>

@@ -18,13 +18,27 @@ const apiRequest = async (endpoint, options = {}) => {
   };
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-  
+  const contentType = response.headers.get('content-type') || '';
+
+  // Handle non-OK responses: try JSON first, then fallback to text
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'API request failed');
+    if (contentType.includes('application/json')) {
+      const error = await response.json();
+      throw new Error(error.error || error.message || JSON.stringify(error));
+    }
+    const text = await response.text();
+  // Some hosts return HTML error pages - strip HTML tags and return readable text
+  const stripped = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  throw new Error(stripped || text || 'API request failed');
   }
-  
-  return response.json();
+
+  // For success, parse JSON if present, otherwise return text
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+  const text = await response.text();
+  const stripped = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  return stripped || text;
 };
 
 export const orderAPI = {
@@ -54,6 +68,21 @@ export const authAPI = {
   updateProfile: (userData) => apiRequest('/auth/profile', {
     method: 'PUT',
     body: JSON.stringify(userData),
+  }),
+  
+  forgotPassword: (email) => apiRequest('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  }),
+
+  resetPassword: (token, password) => apiRequest(`/auth/reset-password/${token}`, {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+  }),
+
+  changePassword: (currentPassword, newPassword) => apiRequest('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword }),
   }),
 };
 

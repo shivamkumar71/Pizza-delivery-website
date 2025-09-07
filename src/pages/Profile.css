@@ -4,6 +4,13 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
+/* Modals for profile actions */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:2000}
+.modal-card{background:#fff;padding:1.25rem;border-radius:10px;max-width:480px;width:100%;box-shadow:0 10px 30px rgba(0,0,0,0.12)}
+.modal-card h3{margin-top:0}
+.modal-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1rem}
+.modal-card .form-group input[type="password"]{width:100%;padding:.6rem;border:1px solid #e6e6e6;border-radius:6px}
+
 .profile-header {
   text-align: center;
   padding: 3rem 0 2rem;
@@ -68,7 +75,8 @@
 
 .detail-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center; /* center icon + content horizontally */
   gap: 1rem;
   padding: 1rem;
   background: #f8f9fa;
@@ -83,12 +91,13 @@
 .detail-icon {
   color: #667eea;
   font-size: 1.2rem;
-  margin-top: 0.25rem;
+  margin-top: 0;
   min-width: 20px;
 }
 
 .detail-content {
-  flex: 1;
+  flex: 0 1 auto;
+  text-align: center; /* center label and value */
 }
 
 .detail-content label {

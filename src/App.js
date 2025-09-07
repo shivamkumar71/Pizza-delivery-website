@@ -16,6 +16,7 @@ import { AuthProvider } from './context/AuthContext';
 import './App.css';
 import Footer from './components/Footer';
 import Contact from './pages/Contact';
+import CookieConsent from './components/CookieConsent';
 
 function App() {
   return (
@@ -128,6 +129,7 @@ function App() {
             </Routes>
           </AnimatePresence>
           <Footer />
+          <CookieConsent />
         </div>
       </CartProvider>
     </AuthProvider>

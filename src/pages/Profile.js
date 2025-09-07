@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import './Profile.css';
@@ -52,6 +53,46 @@ const Profile = () => {
     logout();
     toast.success('Logged out successfully');
     navigate('/');
+  };
+
+  // Change password
+  const [showChangePwd, setShowChangePwd] = useState(false);
+  const [pwdForm, setPwdForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
+  const handlePwdChange = (e) => {
+    const { name, value } = e.target;
+    setPwdForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const submitChangePassword = async () => {
+    if (pwdForm.newPassword !== pwdForm.confirmPassword) return toast.error('Passwords do not match');
+    try {
+      await authAPI.changePassword(pwdForm.currentPassword, pwdForm.newPassword);
+      toast.success('Password changed');
+      setShowChangePwd(false);
+      setPwdForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) {
+      toast.error(err.message || 'Failed to change password');
+    }
+  };
+
+  // Notification settings
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notif, setNotif] = useState(user?.notifications || { email: true, sms: false, push: true });
+
+  const toggleNotif = (key) => {
+    const newVal = { ...notif, [key]: !notif[key] };
+    setNotif(newVal);
+  };
+
+  const saveNotifications = async () => {
+    try {
+      await authAPI.updateProfile({ notifications: notif });
+      toast.success('Notification settings saved');
+      setShowNotifications(false);
+    } catch (err) {
+      toast.error(err.message || 'Failed to save settings');
+    }
   };
 
   if (!user) {
@@ -241,10 +282,10 @@ const Profile = () => {
             <div className="action-card">
               <h3>Account Actions</h3>
               <div className="action-buttons">
-                <button className="btn btn-warning">
+                <button className="btn btn-warning" onClick={() => setShowChangePwd(true)}>
                   Change Password
                 </button>
-                <button className="btn btn-secondary">
+                <button className="btn btn-secondary" onClick={() => setShowNotifications(true)}>
                   Notification Settings
                 </button>
                 <button className="btn btn-secondary">
@@ -258,8 +299,60 @@ const Profile = () => {
           </motion.div>
         </div>
       </div>
+      {/* Modals */}
+      {showChangePwd && (
+        <div className="modal-backdrop">
+          <div className="modal-card">
+            <h3>Change Password</h3>
+            <div className="form-group">
+              <label>Current Password</label>
+              <input type="password" name="currentPassword" value={pwdForm.currentPassword} onChange={handlePwdChange} />
+            </div>
+            <div className="form-group">
+              <label>New Password</label>
+              <input type="password" name="newPassword" value={pwdForm.newPassword} onChange={handlePwdChange} />
+            </div>
+            <div className="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" name="confirmPassword" value={pwdForm.confirmPassword} onChange={handlePwdChange} />
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowChangePwd(false)}>Cancel</button>
+              <button className="btn btn-success" onClick={submitChangePassword}>Change</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showNotifications && (
+        <div className="modal-backdrop">
+          <div className="modal-card">
+            <h3>Notification Settings</h3>
+            <div className="form-group">
+              <label>
+                <input type="checkbox" checked={notif.email} onChange={() => toggleNotif('email')} /> Email Notifications
+              </label>
+            </div>
+            <div className="form-group">
+              <label>
+                <input type="checkbox" checked={notif.sms} onChange={() => toggleNotif('sms')} /> SMS Notifications
+              </label>
+            </div>
+            <div className="form-group">
+              <label>
+                <input type="checkbox" checked={notif.push} onChange={() => toggleNotif('push')} /> Push Notifications
+              </label>
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-secondary" onClick={() => setShowNotifications(false)}>Cancel</button>
+              <button className="btn btn-success" onClick={saveNotifications}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Profile;
+
