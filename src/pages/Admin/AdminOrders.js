@@ -29,8 +29,18 @@ const AdminOrders = () => {
   }, []);
 
   const handleStatusChange = async (orderId, newStatus) => {
-    // TODO: Implement real API call to update status
-    setOrders(orders => orders.map(order => order._id === orderId ? { ...order, status: newStatus } : order));
+    try {
+      const res = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setOrders(orders => orders.map(order => order._id === orderId ? { ...order, status: newStatus } : order));
+      }
+    } catch (err) {
+      // Optionally show error
+    }
   };
 
   if (loading) return <div className="admin-orders">Loading orders...</div>;

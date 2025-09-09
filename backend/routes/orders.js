@@ -1,3 +1,18 @@
+// Update order status by admin
+router.patch('/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 import express from 'express';
 import Order from '../models/Order.js';

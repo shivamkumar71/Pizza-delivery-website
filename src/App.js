@@ -1,7 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import AdminDashboard from './pages/Admin/AdminDashboard';
-import AdminOrders from './pages/Admin/AdminOrders';
+import AdminApp from './pages/Admin/AdminApp';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -106,26 +105,7 @@ function App() {
                     <Contact />
                   </motion.div>
                 } />
-                <Route path="/admin" element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -40 }}
-                    transition={{ duration: 0.7 }}
-                  >
-                    <AdminDashboard />
-                  </motion.div>
-                } />
-                <Route path="/admin/orders" element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -40 }}
-                    transition={{ duration: 0.7 }}
-                  >
-                    <AdminOrders />
-                  </motion.div>
-                } />
+                <Route path="/admin/*" element={<AdminApp />} />
             </Routes>
           </AnimatePresence>
           <Footer />
