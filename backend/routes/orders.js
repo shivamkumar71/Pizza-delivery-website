@@ -1,3 +1,10 @@
+
+import express from 'express';
+import Order from '../models/Order.js';
+import { authenticateToken } from '../middleware/auth.js';
+
+const router = express.Router();
+
 // Update order status by admin
 router.patch('/:id/status', async (req, res) => {
   try {
@@ -13,10 +20,6 @@ router.patch('/:id/status', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-import express from 'express';
-import Order from '../models/Order.js';
-import { authenticateToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
