@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLogin from './AdminLogin';
 import AdminDashboard from './AdminDashboard';
 import AdminOrders from './AdminOrders';
@@ -12,13 +12,11 @@ const AdminApp = () => {
 
   return (
     <AdminAuthContext.Provider value={{ admin, setAdmin }}>
-      <Router>
-        <Routes>
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={admin ? <AdminDashboard /> : <Navigate to="/admin/login" />} />
-          <Route path="/admin/orders" element={admin ? <AdminOrders /> : <Navigate to="/admin/login" />} />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="login" element={<AdminLogin />} />
+        <Route path="dashboard" element={admin ? <AdminDashboard /> : <Navigate to="/admin/login" />} />
+        <Route path="orders" element={admin ? <AdminOrders /> : <Navigate to="/admin/login" />} />
+      </Routes>
     </AdminAuthContext.Provider>
   );
 };
