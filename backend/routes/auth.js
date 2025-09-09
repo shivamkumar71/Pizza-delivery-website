@@ -22,7 +22,16 @@ router.post('/register', async (req, res) => {
 			return res.status(409).json({ error: 'Email already registered' });
 		}
 		const passwordHash = await bcrypt.hash(password, 10);
-		const user = await User.create({ name, email, passwordHash, phone, address });
+		const indiaTime = new Date().toLocaleString('en-IN', {
+			timeZone: 'Asia/Kolkata',
+			year: 'numeric',
+			month: 'short',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: true
+		});
+		const user = await User.create({ name, email, passwordHash, phone, address, createdAtIST: indiaTime });
 		const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
 		res.status(201).json({
 			user: { id: user._id, name: user.name, email: user.email, phone: user.phone, address: user.address },

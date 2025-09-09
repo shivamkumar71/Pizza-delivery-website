@@ -15,7 +15,7 @@ const orderSchema = new mongoose.Schema({
   items: [
     {
       name: String,
-      size: String,
+      size: String, 
       quantity: Number,
       price: Number
     }
@@ -26,19 +26,9 @@ const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'preparing'
-  },
-  orderDate: {
-    type: Date,
-    default: Date.now
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
   }
-});
+},
+{ timestamps: true }
+);
 
 export default mongoose.model('Order', orderSchema);

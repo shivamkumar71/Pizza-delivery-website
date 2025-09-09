@@ -8,7 +8,18 @@ const router = express.Router();
 // Place a new order
 router.post('/', async (req, res) => {
   try {
-    const order = new Order(req.body);
+    // Add IST formatted date string
+    const indiaTime = new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    const orderData = { ...req.body, createdAtIST: indiaTime };
+    const order = new Order(orderData);
     await order.save();
     res.status(201).json(order);
   } catch (err) {

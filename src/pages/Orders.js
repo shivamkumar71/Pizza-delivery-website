@@ -130,7 +130,17 @@ const Orders = () => {
                 <div className="order-header">
                   <div className="order-info">
                     <h3>Order #{order.orderNumber}</h3>
-                    <p className="order-date">{new Date(order.orderDate || order.date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                    <p className="order-date">{
+                      new Date(order.createdAt || order.orderDate || order.date).toLocaleString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      })
+                    }</p>
                   </div>
                   <div className="order-status">
                     {getStatusIcon(order.status)}
@@ -183,7 +193,15 @@ const Orders = () => {
                       <FaClock />
                       Delivery Time
                     </h4>
-                    <p>Estimated: {order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) : 'Calculating...'}</p>
+                    <p>Estimated: {order.estimatedDelivery ? new Date(order.estimatedDelivery).toLocaleString('en-IN', {
+                      timeZone: 'Asia/Kolkata',
+                      year: 'numeric',
+                      month: 'short',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    }) : 'Calculating...'}</p>
                     <p>Duration: 30-45 minutes</p>
                   </div>
 
