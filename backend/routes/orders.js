@@ -21,7 +21,7 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-const router = express.Router();
+
 
 // Place a new order
 router.post('/', async (req, res) => {
