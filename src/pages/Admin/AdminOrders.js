@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { FaCheckCircle, FaClock, FaTruck, FaSyncAlt } from 'react-icons/fa';
 import './AdminOrders.css';
 
-const API_BASE_URL = 'http://192.168.56.1:5000/api'; // Use your backend IP
+const API_BASE_URL = 'https://anshu-pizza-waale.onrender.com/api'; // Production backend URL
+
+const statusOptions = [
+  { value: 'preparing', label: 'Preparing', icon: <FaClock /> },
+  { value: 'out_for_delivery', label: 'Out for Delivery', icon: <FaTruck /> },
+  { value: 'delivered', label: 'Delivered', icon: <FaCheckCircle /> },
+];
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -22,8 +29,7 @@ const AdminOrders = () => {
   }, []);
 
   const handleStatusChange = async (orderId, newStatus) => {
-    // Implement status update API call here
-    // For now, just update locally
+    // TODO: Implement real API call to update status
     setOrders(orders => orders.map(order => order._id === orderId ? { ...order, status: newStatus } : order));
   };
 
@@ -36,33 +42,41 @@ const AdminOrders = () => {
       <table className="orders-table">
         <thead>
           <tr>
-            <th>Order ID</th>
+            <th>Order #</th>
             <th>User</th>
             <th>Items</th>
             <th>Total</th>
             <th>Status</th>
             <th>Change Status</th>
+            <th>Created</th>
           </tr>
         </thead>
         <tbody>
           {orders.map(order => (
             <tr key={order._id}>
-              <td>{order._id}</td>
-              <td>{order.user}</td>
+              <td>{order.orderNumber || order._id.slice(-5)}</td>
+              <td>{order.userDetails?.name || 'N/A'}</td>
               <td>
                 {order.items.map((item, idx) => (
                   <div key={idx}>{item.name} ({item.size}) x{item.quantity}</div>
                 ))}
               </td>
               <td>₹{order.total}</td>
-              <td>{order.status}</td>
+              <td>
+                {statusOptions.find(opt => opt.value === order.status)?.icon}
+                {order.status}
+              </td>
               <td>
                 <select value={order.status} onChange={e => handleStatusChange(order._id, e.target.value)}>
-                  <option value="preparing">Preparing</option>
-                  <option value="out_for_delivery">Out for Delivery</option>
-                  <option value="delivered">Delivered</option>
+                  {statusOptions.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
                 </select>
+                <button className="admin-orders-update-btn">
+                  <FaSyncAlt /> Update
+                </button>
               </td>
+              <td>{order.createdAtIST || new Date(order.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true })}</td>
             </tr>
           ))}
         </tbody>
