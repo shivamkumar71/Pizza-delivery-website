@@ -12,12 +12,29 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Replace with real API call
-    if (email === 'admin@anshupizza.com' && password === 'admin123') {
-      setAdmin({ email });
-      navigate('/admin/dashboard');
-    } else {
-      setError('Invalid credentials');
+    setError('');
+    try {
+      const res = await fetch('https://anshu-pizza-waale.onrender.com/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAdmin(data.user);
+        navigate('/admin/dashboard');
+      } else {
+        let errorMsg = 'Invalid credentials';
+        try {
+          const data = await res.json();
+          errorMsg = data.error ? `Login failed: ${data.error}` : errorMsg;
+        } catch (e) {
+          errorMsg = `Login failed: ${res.status} ${res.statusText}`;
+        }
+        setError(errorMsg);
+      }
+    } catch (err) {
+      setError('Login failed: Network error');
     }
   };
 
