@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import ordersRouter from './routes/orders.js';
 import authRouter from './routes/auth.js';
 import contactsRouter from './routes/contacts.js';
+import adminRouter from './routes/admin.js';
 import { sanitizeInput } from './middleware/auth.js';
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.use(express.json());
 app.use('/api/orders', ordersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/contacts', contactsRouter);
+app.use('/api/admin', adminRouter);
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
