@@ -26,6 +26,21 @@ const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     default: 'preparing'
+  },
+  cancelReason: {
+    type: String,
+    default: ''
+  },
+  payment: {
+    method: { type: String, enum: ['cod', 'upi', 'qr'], default: 'cod' },
+    status: { type: String, enum: ['pending', 'success', 'failed'], default: 'pending' },
+    upiId: String,
+    qrCodeUrl: String,
+    transactionId: String
+  },
+  deliveryBoy: {
+    name: String,
+    phone: String
   }
 },
 { timestamps: true }

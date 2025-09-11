@@ -5,11 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './Orders.css';
 import { useOrders } from '../context/OrderContext';
+import toast from 'react-hot-toast';
 
 const Orders = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { orders, deleteOrder } = useOrders();
+  const { orders, deleteOrder, fetchOrders } = useOrders();
+  const [cancelling, setCancelling] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -205,13 +207,16 @@ const Orders = () => {
                     <p>Duration: 30-45 minutes</p>
                   </div>
 
-                  {order.status === 'out_for_delivery' && (
+                  {order.deliveryBoy?.phone && (
                     <div className="delivery-info">
                       <h4>
                         <FaPhone />
-                        Contact Driver
+                        Delivery Boy
                       </h4>
-                      <p>Your driver will call you when they arrive</p>
+                      <p>
+                        Name: {order.deliveryBoy.name || 'N/A'}<br />
+                        Phone: <a href={`tel:${order.deliveryBoy.phone}`}>{order.deliveryBoy.phone}</a>
+                      </p>
                     </div>
                   )}
                 </div>
@@ -223,12 +228,58 @@ const Orders = () => {
                       <button className="btn">Rate Order</button>
                     </>
                   )}
-                  <button 
-                    className="btn btn-danger"
-                    onClick={() => deleteOrder(order._id)}
-                  >
-                    <FaTrash /> Delete
-                  </button>
+                  {order.status !== 'cancelled' && order.status !== 'delivered' && (
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => setCancelling(order._id)}
+                    >
+                      Cancel Order
+                    </button>
+                  )}
+                  {order.status === 'cancelled' && (
+                    <div className="cancelled-label" style={{ color: 'red', marginTop: 8 }}>
+                      Cancelled{order.cancelReason ? `: ${order.cancelReason}` : ''}
+                    </div>
+                  )}
+      {/* Cancel Order Modal */}
+      {cancelling && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Cancel Order</h3>
+            <p>Please provide a reason for cancellation:</p>
+            <textarea id="cancel-reason" rows="3" style={{ width: '100%' }}></textarea>
+            <div style={{ marginTop: 12 }}>
+              <button
+                className="btn btn-danger"
+                onClick={async () => {
+                  const reason = document.getElementById('cancel-reason').value;
+                  try {
+                    const res = await fetch(`https://anshu-pizza-waale.onrender.com/api/orders/${cancelling}/cancel`, {
+                      method: 'PATCH',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ reason })
+                    });
+                    if (res.ok) {
+                      toast.success('Order cancelled');
+                      setCancelling(null);
+                      fetchOrders();
+                    } else {
+                      toast.error('Failed to cancel order');
+                    }
+                  } catch {
+                    toast.error('Failed to cancel order');
+                  }
+                }}
+              >
+                Confirm Cancel
+              </button>
+              <button className="btn" onClick={() => setCancelling(null)} style={{ marginLeft: 8 }}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
                 </div>
               </motion.div>
             ))}

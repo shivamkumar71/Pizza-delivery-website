@@ -54,7 +54,10 @@ const AdminOrders = () => {
           <tr>
             <th>Order #</th>
             <th>User</th>
+            <th>Phone</th>
+            <th>Address</th>
             <th>Items</th>
+            <th>Delivery Boy</th>
             <th>Total</th>
             <th>Status</th>
             <th>Change Status</th>
@@ -66,12 +69,44 @@ const AdminOrders = () => {
             <tr key={order._id}>
               <td>{order.orderNumber || order._id.slice(-5)}</td>
               <td>{order.userDetails?.name || 'N/A'}</td>
+              <td>{order.userDetails?.phone || 'N/A'}</td>
+              <td>{order.userDetails?.address || 'N/A'}</td>
               <td>
                 {order.items.map((item, idx) => (
                   <div key={idx}>{item.name} ({item.size}) x{item.quantity}</div>
                 ))}
               </td>
               <td>₹{order.total}</td>
+              <td>
+                <div>
+                  Name: {order.deliveryBoy?.name || 'N/A'}<br />
+                  Phone: {order.deliveryBoy?.phone || 'N/A'}
+                </div>
+                <form
+                  onSubmit={async e => {
+                    e.preventDefault();
+                    const form = e.target;
+                    const name = form.deliveryBoyName.value;
+                    const phone = form.deliveryBoyPhone.value;
+                    try {
+                      const res = await fetch(`${API_BASE_URL}/orders/${order._id}/delivery-boy`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, phone })
+                      });
+                      if (res.ok) {
+                        const updated = await res.json();
+                        setOrders(orders => orders.map(o => o._id === order._id ? updated : o));
+                      }
+                    } catch {}
+                  }}
+                  style={{ marginTop: 8 }}
+                >
+                  <input name="deliveryBoyName" placeholder="Name" defaultValue={order.deliveryBoy?.name || ''} style={{ width: 80, marginRight: 4 }} />
+                  <input name="deliveryBoyPhone" placeholder="Phone" defaultValue={order.deliveryBoy?.phone || ''} style={{ width: 100, marginRight: 4 }} />
+                  <button type="submit" style={{ fontSize: 12 }}>Assign</button>
+                </form>
+              </td>
               <td>
                 {statusOptions.find(opt => opt.value === order.status)?.icon}
                 {order.status}

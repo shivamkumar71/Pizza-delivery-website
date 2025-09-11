@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './PaymentModal.css';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaTrash, FaMinus, FaPlus, FaArrowLeft, FaCreditCard, FaMapMarkerAlt, FaEdit } from 'react-icons/fa';
@@ -13,6 +14,9 @@ const Cart = () => {
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState('cod');
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [showDeliveryForm, setShowDeliveryForm] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState({
     address: '',
@@ -65,7 +69,17 @@ const Cart = () => {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
+    setShowPaymentModal(true);
+  };
+
+  const handlePayment = async () => {
+    setIsCheckingOut(true);
+    await handleCheckoutWithPayment(selectedPayment, selectedPayment === 'upi' ? 'success' : 'pending');
+    setIsCheckingOut(false);
+    setShowPaymentModal(false);
+    setPaymentSuccess(false);
+  };
       if (!user) {
         toast.error('You must be logged in to place an order.');
         navigate('/login');
@@ -224,7 +238,7 @@ const Cart = () => {
                 <div className="item-details">
                   <h3>{item.name}</h3>
                   <p className="item-description">
-                    Size: {item.size} • {item.ingredients.join(', ')}
+                    <strong>Selected Size:</strong> {item.size} <span style={{ color: '#888', marginLeft: 8 }}>({item.ingredients.join(', ')})</span>
                   </p>
                   <div className="item-price">₹{item.price}</div>
                 </div>
@@ -401,18 +415,65 @@ const Cart = () => {
                 onClick={handleCheckout}
                 disabled={isCheckingOut}
               >
-                {isCheckingOut ? (
-                  <>
-                    <div className="spinner"></div>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <FaCreditCard />
-                    Proceed to Checkout
-                  </>
-                )}
+                <FaCreditCard /> Proceed to Payment
               </button>
+
+              {/* Payment Modal */}
+              {showPaymentModal && (
+                <div className="payment-modal-overlay">
+                  <div className="payment-modal">
+                    <h2>Choose Payment Method</h2>
+                    <div className="payment-options">
+                      <label className={`payment-option${selectedPayment === 'cod' ? ' selected' : ''}`}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="cod"
+                          checked={selectedPayment === 'cod'}
+                          onChange={() => setSelectedPayment('cod')}
+                        />
+                        <span>Cash on Delivery</span>
+                      </label>
+                      <label className={`payment-option${selectedPayment === 'upi' ? ' selected' : ''}`}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="upi"
+                          checked={selectedPayment === 'upi'}
+                          onChange={() => setSelectedPayment('upi')}
+                        />
+                        <span>UPI / QR Code</span>
+                      </label>
+                    </div>
+                    {selectedPayment === 'upi' && !paymentSuccess && (
+                      <div className="upi-section">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=anshupizza@upi&pn=AnshuPizza&am=AMOUNT" alt="UPI QR Code" />
+                        <p>Scan this QR code with any UPI app to pay.</p>
+                        <p>Or pay to UPI ID: <b>anshupizza@upi</b></p>
+                        <button className="btn pay-btn" onClick={() => setPaymentSuccess(true)}>
+                          I've Paid
+                        </button>
+                      </div>
+                    )}
+                    {selectedPayment === 'upi' && paymentSuccess && (
+                      <div className="payment-success">
+                        <p style={{ color: 'green', fontWeight: 'bold' }}>Payment Successful!</p>
+                        <button className="btn order-btn" onClick={handlePayment} disabled={isCheckingOut}>
+                          Place Order
+                        </button>
+                      </div>
+                    )}
+                    {selectedPayment === 'cod' && (
+                      <button className="btn order-btn" onClick={handlePayment} disabled={isCheckingOut}>
+                        Place Order
+                      </button>
+                    )}
+                    <button className="btn close-btn" onClick={() => { setShowPaymentModal(false); setPaymentSuccess(false); }}>
+                      Close
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="cart-actions">
                 <button

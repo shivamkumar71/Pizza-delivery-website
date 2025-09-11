@@ -1,3 +1,33 @@
+// Cancel an order (mark as cancelled, do not delete)
+router.patch('/:id/cancel', async (req, res) => {
+  try {
+    const { reason } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status: 'cancelled', cancelReason: reason || '' },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// Assign or update delivery boy for an order
+router.patch('/:id/delivery-boy', async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { deliveryBoy: { name, phone } },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 import express from 'express';
 import Order from '../models/Order.js';
