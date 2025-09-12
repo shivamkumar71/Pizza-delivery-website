@@ -73,18 +73,12 @@ const Cart = () => {
     setShowPaymentModal(true);
   };
 
-  const handlePayment = async () => {
-    setIsCheckingOut(true);
-    await handleCheckoutWithPayment(selectedPayment, selectedPayment === 'upi' ? 'success' : 'pending');
-    setIsCheckingOut(false);
-    setShowPaymentModal(false);
-    setPaymentSuccess(false);
-  };
-      if (!user) {
-        toast.error('You must be logged in to place an order.');
-        navigate('/login');
-        return;
-      }
+  const handleCheckoutWithPayment = async (paymentMethod, paymentStatus) => {
+    if (!user) {
+      toast.error('You must be logged in to place an order.');
+      navigate('/login');
+      return;
+    }
 
     // Get final delivery address
     const finalAddress = useProfileAddress && user ? {
@@ -104,29 +98,15 @@ const Cart = () => {
       return;
     }
     
-    setIsCheckingOut(true);
-    
     try {
       // Create order object for API with real IST time
-  const now = new Date();
-  const estimatedDelivery = new Date(now.getTime() + 45*60000);
+      const now = new Date();
+      const estimatedDelivery = new Date(now.getTime() + 45*60000);
 
-      // Debug: log user object to check for user ID property
-      console.log('User object before placing order:', user);
-
-      // Determine user id (support both `id` and `_id` shapes)
-      const userId = user?.id || user?._id || null;
-      if (!userId) {
-        toast.error('You must be logged in to place an order.');
-        setIsCheckingOut(false);
-        return;
-      }
-
-  console.log('Order time:', now.toISOString());
-  console.log('Estimated delivery:', estimatedDelivery.toISOString());
+      console.log('Order time:', now.toISOString());
+      console.log('Estimated delivery:', estimatedDelivery.toISOString());
 
       const orderData = {
-        user: userId, // Required by backend (supports user.id or user._id)
         items: cart.map(item => ({
           name: item.name,
           size: item.size,
@@ -142,6 +122,10 @@ const Cart = () => {
           email: user.email,
           phone: finalAddress.phone,
           address: finalAddress.address
+        },
+        payment: {
+          method: paymentMethod,
+          status: paymentStatus
         }
       };
       
@@ -151,9 +135,15 @@ const Cart = () => {
       navigate('/orders');
     } catch (error) {
       toast.error('Failed to place order. Please try again.');
-    } finally {
-      setIsCheckingOut(false);
     }
+  };
+
+  const handlePayment = async () => {
+    setIsCheckingOut(true);
+    await handleCheckoutWithPayment(selectedPayment, selectedPayment === 'upi' ? 'success' : 'pending');
+    setIsCheckingOut(false);
+    setShowPaymentModal(false);
+    setPaymentSuccess(false);
   };
 
   const containerVariants = {

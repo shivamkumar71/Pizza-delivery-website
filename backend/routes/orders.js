@@ -1,15 +1,118 @@
+
 import express from 'express';
 import Order from '../models/Order.js';
-import { authenticateToken } from '../middleware/auth.js';
+import User from '../models/User.js';
+import { authenticateToken, sanitizeInput } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Cancel an order (mark as cancelled, do not delete)
-router.patch('/:id/cancel', async (req, res) => {
+// Place a new order (protected route)
+router.post('/', authenticateToken, async (req, res) => {
+  try {
+    console.log('Creating order for user:', req.user.id);
+    console.log('Order data:', req.body);
+    console.log('Estimated delivery from frontend:', req.body.estimatedDelivery);
+    
+    const body = req.body || {};
+    let userDetails = {};
+    
+    // If user is logged in, get their details from database
+    if (req.user?.id) {
+      const user = await User.findById(req.user.id);
+      if (user) {
+        userDetails = {
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          address: user.address
+        };
+      }
+    }
+    
+    // Override with any details provided in request body
+    if (body.userDetails) {
+      userDetails = { ...userDetails, ...body.userDetails };
+    }
+    
+    const sanitizedUserDetails = {
+      name: sanitizeInput(userDetails.name || ''),
+      email: sanitizeInput(userDetails.email || ''),
+      phone: sanitizeInput(userDetails.phone || ''),
+      address: sanitizeInput(userDetails.address || '')
+    };
+    
+    // Get IST time (UTC + 5:30)
+    const currentTime = new Date();
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istTime = new Date(currentTime.getTime() + istOffset);
+    const estimatedDeliveryIST = new Date(istTime.getTime() + 45*60000);
+    
+    console.log('UTC Time:', currentTime.toISOString());
+    console.log('IST Time (stored):', istTime.toISOString());
+    console.log('IST Time (readable):', istTime.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
+    console.log('Estimated Delivery IST:', estimatedDeliveryIST.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
+    
+    const orderData = {
+      user: req.user.id,
+      userDetails: sanitizedUserDetails,
+      items: body.items || [],
+      total: body.total || 0,
+      deliveryAddress: sanitizeInput(body.deliveryAddress || ''),
+      estimatedDelivery: estimatedDeliveryIST,
+      status: 'preparing',
+      orderDate: istTime
+    };
+    
+    console.log('Order Date (IST):', istTime.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
+    console.log('Estimated Delivery (IST):', orderData.estimatedDelivery.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }));
+    console.log('Full order data:', orderData);
+    const order = new Order(orderData);
+    const savedOrder = await order.save();
+    console.log('Order saved successfully:', savedOrder._id);
+    
+    res.status(201).json(savedOrder);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Get user's orders (protected route)
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    console.log('Fetching orders for user:', req.user.id);
+    const orders = await Order.find({ user: req.user.id }).sort({ orderDate: -1 });
+    console.log('Found orders:', orders.length);
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete order (protected route)
+router.delete('/:id', authenticateToken, async (req, res) => {
+  try {
+    const order = await Order.findOneAndDelete({ 
+      _id: req.params.id, 
+      user: req.user.id 
+    });
+    
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    console.log('Order deleted:', req.params.id);
+    res.json({ message: 'Order deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cancel an order (protected route)
+router.patch('/:id/cancel', authenticateToken, async (req, res) => {
   try {
     const { reason } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
+    const order = await Order.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
       { status: 'cancelled', cancelReason: reason || '' },
       { new: true }
     );
@@ -20,214 +123,5 @@ router.patch('/:id/cancel', async (req, res) => {
   }
 });
 
-// Assign or update delivery boy for an order
-router.patch('/:id/delivery-boy', async (req, res) => {
-  try {
-    const { name, phone } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { deliveryBoy: { name, phone } },
-      { new: true }
-    );
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Update order status by admin
-router.patch('/:id/status', async (req, res) => {
-  try {
-    const { status } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Place a new order
-router.post('/', async (req, res) => {
-  try {
-    // Add IST formatted date string
-    const indiaTime = new Date().toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-    const orderData = { ...req.body, createdAtIST: indiaTime };
-    const order = new Order(orderData);
-    await order.save();
-    res.status(201).json(order);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Get all orders (owner view)
-router.get('/', async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ date: -1 });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Delete an order by ID (authenticated)
-router.delete('/:id', authenticateToken, async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    // Optionally: check if req.user.id matches order.user (if you store user on order)
-    await order.deleteOne();
-    res.json({ message: 'Order deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-export default router;
-// Cancel an order (mark as cancelled, do not delete)
-router.patch('/:id/cancel', async (req, res) => {
-  try {
-    import express from 'express';
-    import Order from '../models/Order.js';
-    import { authenticateToken } from '../middleware/auth.js';
-
-    const router = express.Router();
-
-    // Cancel an order (mark as cancelled, do not delete)
-    router.patch('/:id/cancel', async (req, res) => {
-      try {
-        const { reason } = req.body;
-        const order = await Order.findByIdAndUpdate(
-          req.params.id,
-          { status: 'cancelled', cancelReason: reason || '' },
-          { new: true }
-        );
-        if (!order) return res.status(404).json({ error: 'Order not found' });
-        res.json(order);
-      } catch (err) {
-        res.status(500).json({ error: err.message });
-      }
-    });
-
-    // Assign or update delivery boy for an order
-    router.patch('/:id/delivery-boy', async (req, res) => {
-      try {
-        const { name, phone } = req.body;
-        const order = await Order.findByIdAndUpdate(
-          req.params.id,
-          { deliveryBoy: { name, phone } },
-          { new: true }
-        );
-        if (!order) return res.status(404).json({ error: 'Order not found' });
-        res.json(order);
-      } catch (err) {
-        res.status(500).json({ error: err.message });
-      }
-    });
-    );
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-// Assign or update delivery boy for an order
-router.patch('/:id/delivery-boy', async (req, res) => {
-  try {
-    const { name, phone } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { deliveryBoy: { name, phone } },
-      { new: true }
-    );
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-import express from 'express';
-import Order from '../models/Order.js';
-import { authenticateToken } from '../middleware/auth.js';
-
-const router = express.Router();
-
-// Update order status by admin
-router.patch('/:id/status', async (req, res) => {
-  try {
-    const { status } = req.body;
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-
-// Place a new order
-router.post('/', async (req, res) => {
-  try {
-    // Add IST formatted date string
-    const indiaTime = new Date().toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-    const orderData = { ...req.body, createdAtIST: indiaTime };
-    const order = new Order(orderData);
-    await order.save();
-    res.status(201).json(order);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-// Get all orders (owner view)
-router.get('/', async (req, res) => {
-  try {
-    const orders = await Order.find().sort({ date: -1 });
-    res.json(orders);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 export default router;
 
-// Delete an order by ID (authenticated)
-router.delete('/:id', authenticateToken, async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    // Optionally: check if req.user.id matches order.user (if you store user on order)
-    await order.deleteOne();
-    res.json({ message: 'Order deleted' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
