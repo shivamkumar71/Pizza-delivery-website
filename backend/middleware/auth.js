@@ -23,3 +23,10 @@ export const sanitizeInput = (input) => {
   if (typeof input !== 'string') return input;
   return input.replace(/[\r\n\t]/g, ' ').replace(/[<>]/g, '');
 };
+
+export const authorizeAdmin = (req, res, next) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Admin access required' });
+  }
+  next();
+};

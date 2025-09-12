@@ -2,7 +2,7 @@
 import express from 'express';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
-import { authenticateToken, sanitizeInput } from '../middleware/auth.js';
+import { authenticateToken, authorizeAdmin, sanitizeInput } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -76,11 +76,15 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Get user's orders (protected route)
+// Get orders
+// - If admin, return all orders
+// - If normal user, return only their orders
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    console.log('Fetching orders for user:', req.user.id);
-    const orders = await Order.find({ user: req.user.id }).sort({ orderDate: -1 });
+    const isAdmin = req.user?.role === 'admin';
+    console.log('Fetching orders for', isAdmin ? 'admin' : 'user', ':', req.user.id);
+    const query = isAdmin ? {} : { user: req.user.id };
+    const orders = await Order.find(query).sort({ orderDate: -1 });
     console.log('Found orders:', orders.length);
     res.json(orders);
   } catch (err) {
@@ -114,6 +118,43 @@ router.patch('/:id/cancel', authenticateToken, async (req, res) => {
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
       { status: 'cancelled', cancelReason: reason || '' },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: update order status
+router.patch('/:id/status', authenticateToken, authorizeAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const allowed = ['preparing', 'out_for_delivery', 'delivered', 'cancelled'];
+    if (!allowed.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: assign/update delivery boy info
+router.patch('/:id/delivery-boy', authenticateToken, authorizeAdmin, async (req, res) => {
+  try {
+    const name = sanitizeInput(req.body?.name || '');
+    const phone = sanitizeInput(req.body?.phone || '');
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { deliveryBoy: { name, phone } },
       { new: true }
     );
     if (!order) return res.status(404).json({ error: 'Order not found' });
