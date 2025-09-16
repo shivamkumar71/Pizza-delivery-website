@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaClock, FaCheckCircle, FaTruck, FaMapMarkerAlt, FaPhone, FaTrash } from 'react-icons/fa';
+import { FaClock, FaCheckCircle, FaTruck, FaMapMarkerAlt, FaPhone } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import './Orders.css';
@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 const Orders = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { orders, deleteOrder, fetchOrders } = useOrders();
+  const { orders, fetchOrders } = useOrders();
   const [cancelling, setCancelling] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -254,9 +254,13 @@ const Orders = () => {
                 onClick={async () => {
                   const reason = document.getElementById('cancel-reason').value;
                   try {
+                    const token = localStorage.getItem('token');
                     const res = await fetch(`https://anshu-pizza-waale.onrender.com/api/orders/${cancelling}/cancel`, {
                       method: 'PATCH',
-                      headers: { 'Content-Type': 'application/json' },
+                      headers: {
+                        'Content-Type': 'application/json',
+                        ...(token && { Authorization: `Bearer ${token}` })
+                      },
                       body: JSON.stringify({ reason })
                     });
                     if (res.ok) {
